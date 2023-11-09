@@ -166,6 +166,7 @@ class ImageViewer(Frame):
 
 	def contenido(self):
 		self.folder_path = StringVar()
+
 		self.current_slice = 0
 
 		folder_label = Label(self, text="Carpeta DICOM:")
@@ -187,6 +188,7 @@ class ImageViewer(Frame):
 		self.image_label.grid(row=2, column=0, columnspan=3)
 
 	def load_dicom_files(self):
+		self.folder_path.set("series")
 		folder_path = self.folder_path.get()
 		dicom_files = [f for f in os.listdir(folder_path) if f.endswith('.dcm')]
 		dicom_files.sort()
