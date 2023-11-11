@@ -1,9 +1,6 @@
-import os
 from tkinter import *
 from tkinter.ttk import *
-from PIL import Image, ImageTk
-import matplotlib.pyplot as plt
-import pydicom as dcm
+from canvas import ImageViewer
 
 
 class DICOMViewerApp(Tk):
@@ -22,14 +19,19 @@ class DICOMViewerApp(Tk):
         self.grid_columnconfigure(index=1, weight=1)
         self.grid_columnconfigure(index=2, weight=1)
         self.grid_columnconfigure(index=3, weight=1)
-        self.grid_columnconfigure(index=4, minsize=250)
+        # self.grid_columnconfigure(index=4, minsize=250)
 
         self.opcion_escogida: StringVar = StringVar(self)
 
         self.menu_bar: Menu = MenuBar(self)
         self.main_bar: Frame = MainBar(self)
-        self.panel: Frame = Panel(self)
-        self.image_viewer: Frame = ImageViewer(self)
+        # self.panel: Frame = Panel(self)
+
+        path = "o.jpg"
+        self.image_viewer: Frame = ImageViewer(self, path)
+        # self.image_viewer2: Frame = ImageViewer(self, path)
+        self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
+        # self.image_viewer2.grid(column=2, row=1, columnspan=2, rowspan=4, pady=3, padx=3, sticky="nsew")
 
 
 class MenuBar(Menu):
@@ -77,6 +79,14 @@ class MainBar(Frame):
         self.create_widgets()
 
     def create_widgets(self):
+        boton_basicas = Menubutton(self, text="Herramientas basicas")
+        menu = Menu(boton_basicas, tearoff=0)
+        opciones_basicas = ("Opcion g", "Opcion h", "etc...")
+        for i in opciones_basicas:
+            menu.add_radiobutton(label=i, value=i, variable=self.master.opcion_escogida)
+        boton_basicas["menu"] = menu
+        boton_basicas.pack(side=LEFT, padx=(2, 4), pady=3, fill="both", expand=True)
+
         boton_segmentacion = Menubutton(self, text="Herramientas segmentacion")
         menu = Menu(boton_segmentacion, tearoff=0)
         menu.add_radiobutton(label="opcionx", value="opcionx", variable=self.master.opcion_escogida)
@@ -107,13 +117,7 @@ class MainBar(Frame):
         boton_dibujo["menu"] = menu
         boton_dibujo.pack(side=LEFT, padx=2, pady=3, fill="both", expand=True)
 
-        boton_basicas = Menubutton(self, text="Herramientas basicas")
-        menu = Menu(boton_basicas, tearoff=0)
-        opciones_basicas = ("Opcion g", "Opcion h", "etc...")
-        for i in opciones_basicas:
-            menu.add_radiobutton(label=i, value=i, variable=self.master.opcion_escogida)
-        boton_basicas["menu"] = menu
-        boton_basicas.pack(side=LEFT, padx=(2, 4), pady=3, fill="both", expand=True)
+
 
 
 class Panel(Frame):
@@ -126,57 +130,55 @@ class Panel(Frame):
         self.label.grid(row=0, column=0, padx=2, pady=4, sticky="nsew")
 
 
-class ImageViewer(Frame):
-    def __init__(self, root_window):
-        super().__init__(root_window, style='ImageViewer.TFrame')
-        Style().configure(style='ImageViewer.TFrame', background='white')
-        self.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
-
-        # Grid 3x3, en el 2x2 se muestran imagenes, y la otra fila y columna la dejo por si al caso
-        self.grid_rowconfigure(index=0, weight=1)
-        self.grid_columnconfigure(index=0, weight=1)
-
-        self.grid_rowconfigure(index=1, weight=1)
-        self.grid_columnconfigure(index=1, weight=1)
-
-        self.grid_rowconfigure(index=2, weight=0)
-        self.grid_columnconfigure(index=2, weight=0)
-
-        self.load_dicom_files("series")
-
-    def load_dicom_files(self, folder_path):
-        # canvas2 = Canvas(self)
-        # canvas3 = Canvas(self)
-        # canvas4 = Canvas(self)
-
-        slice_number: int = 0
-        canvas1 = Canvas(self)
-
-        img_paths: list[str] = [os.path.join(folder_path, file)
-                                for file in os.listdir(folder_path) if file.endswith(".dcm")]
-
-        dicoms_data = [dcm.dcmread(img) for img in img_paths]
-
-        pixel_array = dicoms_data[slice_number].pixel_array
-
-        photo = Image.fromarray(pixel_array)
-
-        # resize photo to canvas1 sizes
-        photo = ImageTk.PhotoImage(image=photo)
-
-        # show image in canvas1
-        canvas1.create_image(0, 0, image=photo, anchor=NW)
-        canvas1.image = photo  # Evita que la imagen se recolecte por el recolector de basura
-
-        canvas1.grid(row=0, column=0, columnspan=2, rowspan=2, padx=(4, 2), pady=(4, 2), sticky="nsew")
-        # canvas2.grid(row=0, column=1, padx=(2, 4), pady=(4, 2), sticky="nsew")
-        # canvas3.grid(row=1, column=0, padx=(4, 2), pady=(2, 4), sticky="nsew")
-        # canvas4.grid(row=1, column=1, padx=(2, 4), pady=(2, 4), sticky="nsew")
-        # imagen = imagen.resize((400, 300), Image.ANTIALIAS)  # Ajusta el tamaño de la imagen según sea necesario
-        # imagen_tk = ImageTk.PhotoImage(imagen)
-
-        # Crea un widget Label para mostrar la imagen
-        # label_imagen = Label(self, image=imagen_tk)
+# class ImageViewer(Frame):
+#     def __init__(self, root_window):
+#         super().__init__(root_window, style='ImageViewer.TFrame')
+#         Style().configure(style='ImageViewer.TFrame', background='white')
+#         self.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
+#
+#         # Grid 3x3, en el 2x2 se muestran imagenes, y la otra fila y columna la dejo por si al caso
+#         self.grid_rowconfigure(index=0, weight=1)
+#         self.grid_columnconfigure(index=0, weight=1)
+#
+#         self.grid_rowconfigure(index=1, weight=1)
+#         self.grid_columnconfigure(index=1, weight=1)
+#
+#         self.grid_rowconfigure(index=2, weight=0)
+#         self.grid_columnconfigure(index=2, weight=0)
+#
+#         self.load_dicom_files("series")
+#
+#     def load_dicom_files(self, folder_path):
+#         print(type(self))
+#         slice_number: int = 0
+#         self.canvas1 = Canvas(self)
+#
+#
+#         img_paths: list[str] = [os.path.join(folder_path, file)
+#                                 for file in os.listdir(folder_path) if file.endswith(".dcm")]
+#
+#         dicoms_data = [dcm.dcmread(img) for img in img_paths]
+#
+#         pixel_array = dicoms_data[slice_number].pixel_array
+#
+#         photo = Image.fromarray(pixel_array)
+#
+#         # resize photo to canvas1 sizes
+#         photo = ImageTk.PhotoImage(image=photo)
+#
+#         # show image in canvas1
+#         canvas1.create_image(0, 0, image=photo, anchor=NW)
+#         canvas1.image = photo  # Evita que la imagen se recolecte por el recolector de basura
+#
+#         canvas1.grid(row=0, column=0, columnspan=2, rowspan=2, padx=(4, 2), pady=(4, 2), sticky="nsew")
+#         # canvas2.grid(row=0, column=1, padx=(2, 4), pady=(4, 2), sticky="nsew")
+#         # canvas3.grid(row=1, column=0, padx=(4, 2), pady=(2, 4), sticky="nsew")
+#         # canvas4.grid(row=1, column=1, padx=(2, 4), pady=(2, 4), sticky="nsew")
+#         # imagen = imagen.resize((400, 300), Image.ANTIALIAS)  # Ajusta el tamaño de la imagen según sea necesario
+#         # imagen_tk = ImageTk.PhotoImage(imagen)
+#
+#         # Crea un widget Label para mostrar la imagen
+#         # label_imagen = Label(self, image=imagen_tk)
 
 
 if __name__ == "__main__":
