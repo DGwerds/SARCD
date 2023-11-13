@@ -27,7 +27,7 @@ class DICOMViewerApp(Tk):
         self.main_bar: Frame = MainBar(self)
         # self.panel: Frame = Panel(self)
 
-        path = "o.jpg"
+        path = "u.jpg"
         self.image_viewer: Frame = ImageViewer(self, path)
         # self.image_viewer2: Frame = ImageViewer(self, path)
         self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")

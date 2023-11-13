@@ -5,7 +5,8 @@ from PIL import Image, ImageTk
 import pydicom as dcm
 import os
 import random
-
+import numpy as np
+import time
 
 class AutoScrollbar(Scrollbar):
 	""" A scrollbar that hides itself if it's not needed.
@@ -50,6 +51,7 @@ class ImageViewer(Frame):
 		self.canvas.bind('<Button-4>', self.wheel)  # only with Linux, wheel scroll up
 
 		self.image = Image.open(path)  # open image
+		# self.image = self.load_dicom_files(path)
 		self.width, self.height = self.image.size
 		self.imscale = 1.0  # scale for the canvaas image
 		self.delta = 1.2  # zoom magnitude
@@ -57,7 +59,7 @@ class ImageViewer(Frame):
 
 		self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0)
 		# Plot some optional random rectangles for the test purposes
-		minsize, maxsize, number = 5, 40, 15
+		minsize, maxsize, number = 5, 400, 15
 		for n in range(number):
 			x0 = random.randint(0, self.width - maxsize)
 			y0 = random.randint(0, self.height - maxsize)
@@ -107,6 +109,21 @@ class ImageViewer(Frame):
 		self.canvas.scale('all', x, y, scale, scale)  # rescale all canvas objects
 		self.show_image()
 
+	def load_dicom_files(self, folder_path):
+		print(type(self))
+		slice_number: int = 0
+
+		img_paths: list[str] = [os.path.join(folder_path, file)
+		                        for file in os.listdir(folder_path) if file.lower().endswith(".dcm")]
+
+		dicoms_data = [dcm.dcmread(img) for img in img_paths]
+
+		pixel_array = dicoms_data[slice_number].pixel_array
+
+		photo = Image.fromarray(pixel_array)
+
+		return photo
+
 	def show_image(self, _event=None):
 		""" Show image on the Canvas """
 		bbox1 = self.canvas.bbox(self.container)  # get image area
@@ -139,27 +156,28 @@ class ImageViewer(Frame):
 			self.canvas.lower(imageid)  # set image into background
 			self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
-	# self.load_dicom_files("series")
 
-	# def load_dicom_files(self, folder_path):
-	# 	print(type(self))
-	# 	slice_number: int = 0
-	# 	canvas1 = Canvas(self)
-	#
-	# 	img_paths: list[str] = [os.path.join(folder_path, file)
-	# 	                        for file in os.listdir(folder_path) if file.endswith(".dcm")]
-	#
-	# 	dicoms_data = [dcm.dcmread(img) for img in img_paths]
-	#
-	# 	pixel_array = dicoms_data[slice_number].pixel_array
-	#
-	# 	photo = Image.fromarray(pixel_array)
-	#
-	# 	# resize photo to canvas1 sizes
-	# 	photo = ImageTk.PhotoImage(image=photo)
-	#
-	# 	# show image in canvas1
-	# 	canvas1.create_image(0, 0, image=photo, anchor=NW)
-	# 	canvas1.image = photo  # Evita que la imagen se recolecte por el recolector de basura
-	#
-	# 	canvas1.grid(row=0, column=0, columnspan=2, rowspan=2, padx=(4, 2), pady=(4, 2), sticky="nsew")
+# self.load_dicom_files("series")
+
+# def load_dicom_files(self, folder_path):
+# 	print(type(self))
+# 	slice_number: int = 0
+# 	canvas1 = Canvas(self)
+#
+# 	img_paths: list[str] = [os.path.join(folder_path, file)
+# 	                        for file in os.listdir(folder_path) if file.endswith(".dcm")]
+#
+# 	dicoms_data = [dcm.dcmread(img) for img in img_paths]
+#
+# 	pixel_array = dicoms_data[slice_number].pixel_array
+#
+# 	photo = Image.fromarray(pixel_array)
+#
+# 	# resize photo to canvas1 sizes
+# 	photo = ImageTk.PhotoImage(image=photo)
+#
+# 	# show image in canvas1
+# 	canvas1.create_image(0, 0, image=photo, anchor=NW)
+# 	canvas1.image = photo  # Evita que la imagen se recolecte por el recolector de basura
+#
+# 	canvas1.grid(row=0, column=0, columnspan=2, rowspan=2, padx=(4, 2), pady=(4, 2), sticky="nsew")
