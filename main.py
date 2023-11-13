@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from canvas import ImageViewer
+from src.canvas import ImageViewer
 
 
 class DICOMViewerApp(Tk):
@@ -9,6 +9,7 @@ class DICOMViewerApp(Tk):
         self.title("MOCID")
         self.geometry("1400x550")
 
+        # Configurar la cuadricula de la ventana es un 5x5
         self.grid_rowconfigure(index=0, minsize=50)
         self.grid_rowconfigure(index=1, weight=1)
         self.grid_rowconfigure(index=2, weight=1)
@@ -19,15 +20,21 @@ class DICOMViewerApp(Tk):
         self.grid_columnconfigure(index=1, weight=1)
         self.grid_columnconfigure(index=2, weight=1)
         self.grid_columnconfigure(index=3, weight=1)
-        # self.grid_columnconfigure(index=4, minsize=250)
+        self.grid_columnconfigure(index=4, minsize=250)
 
         self.opcion_escogida: StringVar = StringVar(self)
 
+        # la barra superior que dice "Archivo, Editar, Ayuda"
         self.menu_bar: Menu = MenuBar(self)
-        self.main_bar: Frame = MainBar(self)
-        # self.panel: Frame = Panel(self)
 
-        path = "u.jpg"
+        # la barra de herramientas
+        self.main_bar: Frame = MainBar(self)
+        self.main_bar.grid(column=0, row=0, columnspan=5, sticky="nsew")
+
+        self.panel: Frame = Panel(self)
+
+        # path = "Ejemplos/series"
+        path = "Ejemplos/series2"
         self.image_viewer: Frame = ImageViewer(self, path)
         # self.image_viewer2: Frame = ImageViewer(self, path)
         self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
@@ -75,13 +82,12 @@ class MainBar(Frame):
     def __init__(self, root_window):
         super().__init__(root_window, style="MainBar.TFrame")
         Style().configure(style='MainBar.TFrame', background='lightblue')
-        self.grid(column=0, row=0, columnspan=5, sticky="nsew")
         self.create_widgets()
 
     def create_widgets(self):
         boton_basicas = Menubutton(self, text="Herramientas basicas")
         menu = Menu(boton_basicas, tearoff=0)
-        opciones_basicas = ("Opcion g", "Opcion h", "etc...")
+        opciones_basicas = ("Lopa", "Opcion h", "etc...")
         for i in opciones_basicas:
             menu.add_radiobutton(label=i, value=i, variable=self.master.opcion_escogida)
         boton_basicas["menu"] = menu
