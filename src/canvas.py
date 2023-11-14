@@ -9,9 +9,6 @@ import random
 
 
 class AutoScrollbar(Scrollbar):
-	""" A scrollbar that hides itself if it's not needed.
-		Works only if you use the grid geometry manager """
-
 	def set(self, lo, hi):
 		if float(lo) <= 0.0 and float(hi) >= 1.0:
 			self.grid_remove()
@@ -56,6 +53,7 @@ class ImageViewer(Frame):
 		# Bind events to the Canvas
 		self.canvas.bind(sequence='<Configure>', func=self.show_image)
 		self.canvas.bind(sequence='<ButtonPress-1>', func=self.canvas_tools.click)
+		self.canvas.bind(sequence='<ButtonRelease-1>', func=self.canvas_tools.click_release)
 		self.canvas.bind(sequence='<B1-Motion>', func=self.canvas_tools.drag)
 
 		match sys.platform:
@@ -72,15 +70,6 @@ class ImageViewer(Frame):
 		self.imscale = 1.0  # scale for the canvaas image
 		# Put image into container rectangle and use it to set proper coordinates to the image
 		self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0)
-		# Plot some optional random rectangles for the test purposes
-		minsize, maxsize, number = 5, 40, 15
-		for n in range(number):
-			x0 = random.randint(0, self.width - maxsize)
-			y0 = random.randint(0, self.height - maxsize)
-			x1 = x0 + random.randint(minsize, maxsize)
-			y1 = y0 + random.randint(minsize, maxsize)
-			color = ('red', 'orange', 'yellow', 'green', 'blue')[random.randint(0, 4)]
-			self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, activefill='black')
 		self.show_image()
 
 	def show_image(self, _event=None):
@@ -115,3 +104,4 @@ class ImageViewer(Frame):
 			                                   anchor='nw', image=imagetk)
 			self.canvas.lower(imageid)  # set image into background
 			self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+

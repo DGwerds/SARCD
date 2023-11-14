@@ -1,17 +1,36 @@
-class Zoom:
+from src.canvas import Canvas
+import random
+
+
+class ManualSegmentation:
 	def __init__(self, image_viewer):
+		self.r = None
+		self.y0 = None
+		self.x0 = None
 		self.image_viewer = image_viewer
-		self.canvas = image_viewer.canvas
+		self.canvas: Canvas = image_viewer.canvas
 		self.delta = 1.2
+		# self.delta = 1.2
 
 	def click(self, event):
-		""" Remember previous coordinates for scrolling with the mouse """
 		self.canvas.scan_mark(event.x, event.y)
+		# self.x0, self.y0 = (event.x, event.y)
+		self.x0 = self.canvas.canvasx(event.x)
+		self.y0 = self.canvas.canvasy(event.y)
+
+		color = ('red', 'orange', 'yellow', 'green', 'blue')[random.randint(0, 4)]
+		self.r = self.canvas.create_rectangle(self.x0, self.y0, self.x0, self.y0, fill=color)
+		# self.r = self.canvas.create_line(self.x0, self.y0, self.x0, self.y0)
+		self.image_viewer.show_image()  # redraw the image
+		# self.canvas.show_image()
+		# self.canvas.scan_mark(event.x, event.y)
 
 	def drag(self, event):
 		""" Drag (move) canvas to the new position """
-		self.canvas.scan_dragto(event.x, event.y, gain=1)
-		self.image_viewer.show_image()  # redraw the image
+		# self.canvas.scan_dragto(event.x, event.y, gain=1)
+		curX, curY = (self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))
+		self.canvas.coords(self.r, self.x0, self.y0, curX, curY)
+		# self.image_viewer.show_image()  # redraw the image
 
 	def wheel(self, event):
 		""" Zoom with mouse wheel """
@@ -34,6 +53,9 @@ class Zoom:
 		self.canvas.scale('all', x, y, scale, scale)  # rescale all canvas objects
 		self.image_viewer.show_image()
 
+
 	def click_release(self, event):
-		print("zoom")
-		pass
+		curX, curY = (event.x, event.y)
+		self.r = self.canvas.create_line(self.x0, self.y0, self.x0, self.y0)
+		# print("sefe")
+		# self.canvas.delete(self.r)
