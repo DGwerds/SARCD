@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.ttk import *
-from src.canvas import ImageViewer
+from tkinter import filedialog
+
+from src.panels import ManagementPanel, ImageViewer, ToolPanel, MenuBar
 
 
 class DICOMViewerApp(Tk):
@@ -22,115 +24,24 @@ class DICOMViewerApp(Tk):
         self.grid_columnconfigure(index=3, weight=1)
         self.grid_columnconfigure(index=4, minsize=250)
 
-        self.opcion_escogida: StringVar = StringVar(self)
-
         # la barra superior que dice "Archivo, Editar, Ayuda"
         self.menu_bar: Menu = MenuBar(self)
 
-        # la barra de herramientas
-        self.main_bar: Frame = MainBar(self)
-        self.main_bar.grid(column=0, row=0, columnspan=5, sticky="nsew")
-
-        # la barra de edicion de parametros
-        self.panel: Frame = Panel(self)
+        # el panel de gestion de herramientas
+        self.management_panel: Frame = ManagementPanel(self)
+        self.management_panel.grid(column=4, row=1, rowspan=4, pady=3, padx=3, sticky="nsew")
 
         # Donde se muestran las imagenes
-        path = "Ejemplos/series2"
-        self.image_viewer: Frame = ImageViewer(self, path)
+        # open a folder with dicom files (or a single file) tkinter
+        # path = "Ejemplos/series"
+        path = filedialog.askdirectory()
+        print(path)
+        self.image_viewer: Frame = ImageViewer(self, path=path)
         self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
 
-
-class MenuBar(Menu):
-    def __init__(self, root_window):
-        super().__init__(root_window)
-        root_window.config(menu=self)
-        self.create_menu()
-
-    def create_menu(self):
-        menu_archivo = Menu(self, tearoff=0)
-        menu_archivo.add_command(label="Nuevo")
-        menu_archivo.add_command(label="Abrir", accelerator="Ctrl+N")
-
-        def guardar():
-            print("Jajajaj, archivo ''guardado''")
-
-        menu_archivo.add_command(label="Guardar", accelerator="Ctrl+G", command=guardar)
-        menu_archivo.add_separator()
-
-        menu_archivo.add_command(label="Cerrar", accelerator="Alt+F4", command=self.master.destroy)
-        self.add_cascade(label="Archivo", menu=menu_archivo)
-
-        menu_editar = Menu(self, tearoff=0)
-        menu_editar.add_command(label="Cortar", state=DISABLED)
-        menu_editar.add_command(label="Copiar")
-        menu_editar.add_command(label="Pegar")
-        self.add_cascade(label="Editar", menu=menu_editar)
-
-        menu_ayuda = Menu(self, tearoff=0)
-        menu_ayuda.add_command(label="Ayudameeee", state=DISABLED)
-        menu_ayuda.add_separator()
-
-        def funcion_de_prueba():
-            menu_ayuda.entryconfig(index=0, state=NORMAL)
-
-        menu_ayuda.add_command(label="Activar boton ayudameeee", command=funcion_de_prueba)
-        self.add_cascade(label="Ayuda", menu=menu_ayuda)
-
-
-class MainBar(Frame):
-    def __init__(self, root_window):
-        super().__init__(root_window, style="MainBar.TFrame")
-        Style().configure(style='MainBar.TFrame', background='lightblue')
-        self.create_widgets()
-
-    def create_widgets(self):
-        boton_basicas = Menubutton(self, text="Herramientas basicas")
-        menu = Menu(boton_basicas, tearoff=0)
-        opciones_basicas = ("Lopa", "Opcion h", "etc...")
-        for i in opciones_basicas:
-            menu.add_radiobutton(label=i, value=i, variable=self.master.opcion_escogida)
-        boton_basicas["menu"] = menu
-        boton_basicas.pack(side=LEFT, padx=(2, 4), pady=3, fill="both", expand=True)
-
-        boton_segmentacion = Menubutton(self, text="Herramientas segmentacion")
-        menu = Menu(boton_segmentacion, tearoff=0)
-        menu.add_radiobutton(label="opcionx", value="opcionx", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="opciony", value="opciony", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="opcionz", value="opcionz", variable=self.master.opcion_escogida)
-        boton_segmentacion["menu"] = menu
-        boton_segmentacion.pack(side=LEFT, padx=(4, 2), pady=3, fill="both", expand=True)
-
-        boton_medicion = Menubutton(self, text="Herramientas medicion")
-        menu = Menu(boton_medicion, tearoff=0)
-        menu.add_radiobutton(label="Opcion a", value="Opcion a", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="Opcion b", value="Opcion b", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="Opcion c", value="opcion c", variable=self.master.opcion_escogida)
-        boton_medicion["menu"] = menu
-        boton_medicion.pack(side=LEFT, padx=2, pady=3, fill="both", expand=True)
-
-        boton_visualizacion = Menubutton(self, text="Herramientas visualizacion")
-        menu = Menu(boton_visualizacion, tearoff=0)
-        menu.add_radiobutton(label="Opcion c", value="Opcion c", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="Opcion d", value="Opcion d", variable=self.master.opcion_escogida)
-        boton_visualizacion["menu"] = menu
-        boton_visualizacion.pack(side=LEFT, padx=2, pady=3, fill="both", expand=True)
-
-        boton_dibujo = Menubutton(self, text="Herramientas de dibujo")
-        menu = Menu(boton_dibujo, tearoff=0)
-        menu.add_radiobutton(label="Opcion e", value="Opcion e", variable=self.master.opcion_escogida)
-        menu.add_radiobutton(label="Opcion f", value="Opcion f", variable=self.master.opcion_escogida)
-        boton_dibujo["menu"] = menu
-        boton_dibujo.pack(side=LEFT, padx=2, pady=3, fill="both", expand=True)
-
-
-class Panel(Frame):
-    def __init__(self, root_window):
-        super().__init__(root_window, style='Panel.TFrame')
-        Style().configure(style='Panel.TFrame', background='lightgreen',  width=300, height=100)
-        self.grid(column=4, row=1, rowspan=4, pady=3, padx=3, sticky="nsew")
-
-        self.label = Label(self, text="Panel")
-        self.label.grid(row=0, column=0, padx=2, pady=4, sticky="nsew")
+        # la barra de herramientas
+        self.tool_panel: Frame = ToolPanel(self)
+        self.tool_panel.grid(column=0, row=0, columnspan=5, sticky="nsew")
 
 
 if __name__ == "__main__":
