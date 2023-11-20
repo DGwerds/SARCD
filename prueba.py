@@ -1,51 +1,91 @@
-from PIL import Image, ImageTk
-import PIL
-from tkinter import *
-from tkinter.ttk import *
+from abc import ABC, abstractmethod
 
 
-class ExampleApp(Frame):
-	def __init__(self, master):
-		Frame.__init__(self, master=None)
-		self.x = self.y = 0
-		self.canvas = Canvas(master, cursor="cross")
+class Tool(ABC):
+	@abstractmethod
+	def left_click(self):
+		pass
 
-		self.canvas.grid(row=0, column=0, sticky=N + S + E + W)
+	@abstractmethod
+	def wheel(self):
+		pass
 
-		self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-		self.canvas.bind("<B1-Motion>", self.on_move_press)
-		self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
-
-		self.rect = None
-
-		self.start_x = None
-		self.start_y = None
-
-		self.im = PIL.Image.open("Ejemplos/i.png")
-		self.wazil, self.lard = self.im.size
-		self.canvas.config(scrollregion=(0, 0, self.wazil, self.lard))
-		self.tk_im = ImageTk.PhotoImage(self.im)
-		self.canvas.create_image(0, 0, anchor="nw", image=self.tk_im)
-
-	def on_button_press(self, event):
-		# save mouse drag start position
-		self.start_x = event.x
-		self.start_y = event.y
-
-		# create rectangle if not yet exist
-		# if not self.rect:
-		self.rect = self.canvas.create_rectangle(self.x, self.y, 1, 1, fill="blue")
-
-	def on_move_press(self, event):
-		curX, curY = (event.x, event.y)
-		# expand rectangle as you drag the mouse
-		self.canvas.coords(self.rect, self.start_x, self.start_y, curX, curY)
-
-	def on_button_release(self, event):
+	@abstractmethod
+	def drag(self):
 		pass
 
 
-if __name__ == "__main__":
-	root = Tk()
-	app = ExampleApp(root)
-	root.mainloop()
+class Toolbox(Tool):
+	def __init__(self):
+		self.zoom_tool = Zoom()
+		self.brush_tool = Brush()
+		self.current_tool = self.zoom_tool
+
+	def change_tool(self, tool_name):
+		if tool_name == 'zoom':
+			self.current_tool = self.zoom_tool
+		elif tool_name == 'brush':
+			self.current_tool = self.brush_tool
+		else:
+			print(f"Unknown tool: {tool_name}")
+
+	def left_click(self):
+		self.current_tool.left_click()
+
+	def wheel(self):
+		self.current_tool.wheel()
+
+	def drag(self):
+		self.current_tool.drag()
+
+
+class Zoom(Tool):
+	def drag(self):
+		pass
+
+	def left_click(self):
+		print("Zoom: left_click")
+
+	def wheel(self):
+		print("Zoom: wheel")
+
+
+class Brush(Tool):
+	def wheel(self):
+		pass
+
+	def left_click(self):
+		print("Brush: left_click")
+
+	def drag(self):
+		print("Brush: drag")
+
+
+class Pincel(Tool):
+	def left_click(self):
+		print("Pincel: left_click")
+
+	def wheel(self):
+		print("Pincel: wheel")
+
+	def drag(self):
+		print("Pincel: drag")
+
+# def wheel(self):
+# 	try:
+# 		super().wheel()
+# 	except AttributeError:
+# 		self.fallback_tool.wheel()
+
+
+t = Toolbox()
+t.left_click()
+t.wheel()
+
+print(t.current_tool)
+t.change_tool('brush')
+print(t.current_tool)
+
+t.left_click()
+t.wheel()
+t.drag()
