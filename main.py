@@ -33,8 +33,8 @@ class DICOMViewerApp(Tk):
 
         # Donde se muestran las imagenes
         # open a folder with dicom files (or a single file) tkinter
-        # path = "Ejemplos/series"
-        path = filedialog.askdirectory()
+        path = "Ejemplos/series"
+        # path = filedialog.askdirectory()
         print(path)
         self.image_viewer: Frame = ImageViewer(self, path=path)
         self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")

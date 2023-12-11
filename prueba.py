@@ -1,91 +1,42 @@
-from abc import ABC, abstractmethod
+from tkinter import Canvas, Tk, PhotoImage
+from PIL import Image, ImageTk
 
+class Aplicacion:
+    def __init__(self, ventana, imagen_path):
+        self.ventana = ventana
+        self.ventana.title("Selección Automática")
 
-class Tool(ABC):
-	@abstractmethod
-	def left_click(self):
-		pass
+        # Cargar la imagen
+        self.imagen = Image.open(imagen_path)
+        self.imagen_tk = ImageTk.PhotoImage(self.imagen)
 
-	@abstractmethod
-	def wheel(self):
-		pass
+        # Crear el lienzo (canvas)
+        self.canvas = Canvas(ventana, width=self.imagen.width, height=self.imagen.height)
+        self.canvas.pack()
 
-	@abstractmethod
-	def drag(self):
-		pass
+        # Mostrar la imagen en el canvas
+        self.canvas.create_image(0, 0, anchor="nw", image=self.imagen_tk)
 
+        # Configurar la función de clic en el canvas
+        self.canvas.bind("<Button-1>", self.seleccion_automatica)
 
-class Toolbox(Tool):
-	def __init__(self):
-		self.zoom_tool = Zoom()
-		self.brush_tool = Brush()
-		self.current_tool = self.zoom_tool
+    def seleccion_automatica(self, evento):
+        # Obtener las coordenadas del clic
+        x, y = evento.x, evento.y
 
-	def change_tool(self, tool_name):
-		if tool_name == 'zoom':
-			self.current_tool = self.zoom_tool
-		elif tool_name == 'brush':
-			self.current_tool = self.brush_tool
-		else:
-			print(f"Unknown tool: {tool_name}")
+        # Implementar tu algoritmo de selección automática aquí
+        # Puedes usar las coordenadas (x, y) para determinar la región seleccionada
 
-	def left_click(self):
-		self.current_tool.left_click()
+        # Ejemplo: Dibujar un polígono alrededor del punto de clic
+        self.canvas.create_polygon(x-10, y-10, x+10, y-10, x+10, y+10, x-10, y+10, fill="", outline="red")
 
-	def wheel(self):
-		self.current_tool.wheel()
+if __name__ == "__main__":
+    # Ruta de la imagen
+    imagen_path = "Ejemplos/i.png"  # Reemplaza con la ruta de tu imagen
 
-	def drag(self):
-		self.current_tool.drag()
+    # Crear la ventana de la aplicación
+    root = Tk()
+    app = Aplicacion(root, imagen_path)
 
-
-class Zoom(Tool):
-	def drag(self):
-		pass
-
-	def left_click(self):
-		print("Zoom: left_click")
-
-	def wheel(self):
-		print("Zoom: wheel")
-
-
-class Brush(Tool):
-	def wheel(self):
-		pass
-
-	def left_click(self):
-		print("Brush: left_click")
-
-	def drag(self):
-		print("Brush: drag")
-
-
-class Pincel(Tool):
-	def left_click(self):
-		print("Pincel: left_click")
-
-	def wheel(self):
-		print("Pincel: wheel")
-
-	def drag(self):
-		print("Pincel: drag")
-
-# def wheel(self):
-# 	try:
-# 		super().wheel()
-# 	except AttributeError:
-# 		self.fallback_tool.wheel()
-
-
-t = Toolbox()
-t.left_click()
-t.wheel()
-
-print(t.current_tool)
-t.change_tool('brush')
-print(t.current_tool)
-
-t.left_click()
-t.wheel()
-t.drag()
+    # Ejecutar el bucle principal de la interfaz gráfica
+    root.mainloop()

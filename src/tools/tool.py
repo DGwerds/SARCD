@@ -16,6 +16,10 @@ class Tool(ABC):
         pass
 
     @abstractmethod
+    def ctrl_wheel(self, event):
+        pass
+
+    @abstractmethod
     def drag(self, event):
         pass
 
@@ -24,4 +28,7 @@ class Tool(ABC):
         pass
 
     def get_description(self):
+        pass
+
+    def get_parameters(self):
         pass

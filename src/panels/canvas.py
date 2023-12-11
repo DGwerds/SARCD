@@ -1,11 +1,10 @@
+import configparser
 import os
 from tkinter import *
 from tkinter.ttk import *
 
 import pydicom as dcm
 from PIL import Image, ImageTk
-
-import numpy as np
 
 
 class AutoScrollbar(Scrollbar):
@@ -18,7 +17,7 @@ class AutoScrollbar(Scrollbar):
 
 
 def window_image(img, window_center, window_width, intercept, slope, rescale=True):
-    img = (img * slope + intercept)  # for translation adjustments given in the dicom file.
+    img = (img * slope) + intercept  # for translation adjustments given in the dicom file.
     img_min = window_center - window_width // 2  # minimum HU level
     img_max = window_center + window_width // 2  # maximum HU level
     img[img < img_min] = img_min  # set img_min for all HU levels less than minimum HU level
@@ -28,29 +27,25 @@ def window_image(img, window_center, window_width, intercept, slope, rescale=Tru
     return img
 
 
-def get_first_of_dicom_field_as_int(x):
-    # get x[0] as in int is x is a 'pydicom.multival.MultiValue', otherwise get int(x)
-    if type(x) == dcm.multival.MultiValue:
-        return int(x[0])
-    else:
-        return int(x)
-
-
 def get_windowing(data):
-    dicom_fields = [data[('0028', '1050')].value,  # window center
-                    data[('0028', '1051')].value,  # window width
-                    data[('0028', '1052')].value,  # intercept
-                    data[('0028', '1053')].value]  # slope
-    return [get_first_of_dicom_field_as_int(x) for x in dicom_fields]
+    dicom_fields = [data.WindowCenter, data.WindowWidth]
+    try:
+        dicom_fields.append(data.RescaleIntercept)
+        dicom_fields.append(data.RescaleSlope)
+    except AttributeError:
+        dicom_fields.extend([0, 1])
+        return dicom_fields
+    return [int(x[0]) if isinstance(x, dcm.multival.MultiValue) else int(x) for x in dicom_fields]
 
 
 class ImageViewer(Frame):
     def __init__(self, root_window, path):
         super().__init__(master=root_window, style='ImageViewer.TFrame')
-        self.dicoms_data = None
-        self.dicoms_image_fromarray = []
+        self.dicoms_data: list[FileDataset] = []
+        self.dicoms_image_fromarray: List[Image] = []
         self.slice_number: int = 0
-        Style().configure(style='ImageViewer.TFrame', background='gray')
+
+        Style().configure(style='ImageViewer.TFrame', background='black')
 
         vbar = AutoScrollbar(self, orient='vertical')
         hbar = AutoScrollbar(self, orient='horizontal')
@@ -59,7 +54,7 @@ class ImageViewer(Frame):
 
         # Create canvas and put image on it
         self.canvas = Canvas(self, highlightthickness=0,
-                             xscrollcommand=hbar.set, yscrollcommand=vbar.set, background='lightgray')
+                             xscrollcommand=hbar.set, yscrollcommand=vbar.set, background='black')
         self.canvas.grid(row=0, column=0, sticky='nsew')
 
         self.rowconfigure(index=0, weight=1)
@@ -69,12 +64,8 @@ class ImageViewer(Frame):
 
         # Bind events to the Canvas
         self.canvas.bind(sequence='<Configure>', func=self.show_image)
-        self.canvas.bind(sequence='<Control-MouseWheel>', func=self.__next_dicom_image)
-        self.canvas.bind(sequence='<Control-4>', func=self.__next_dicom_image)
-        self.canvas.bind(sequence='<Control-5>', func=self.__previous_dicom_image)
         self.__filter = Image.LANCZOS  # could be: NEAREST, BILINEAR, BICUBIC and ANTIALIAS
 
-        # bind mouse hover canvas
         # self.canvas.bind(sequence='<Enter>', func=self.__get_focus)
 
         if os.path.isdir(path):
@@ -84,7 +75,6 @@ class ImageViewer(Frame):
 
         self.width, self.height = self.image.size
         self.imscale = 1.0  # scale for the canvaas image
-        # Put image into container rectangle and use it to set proper coordinates to the image
         self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0)
         self.show_image()
 
@@ -94,34 +84,19 @@ class ImageViewer(Frame):
                                 for file in os.listdir(folder_path) if file.lower().endswith(".dcm")]
 
         img_paths.sort()
-        self.dicoms_data = [dcm.dcmread(img) for img in img_paths]
+        self.dicoms_data: list[FileDataset] = [dcm.dcmread(img) for img in img_paths]
+        self.dicoms_image_fromarray = [None] * len(self.dicoms_data)
         self.read_dicom_file(self.slice_number)
 
-    def read_dicom_file(self, slice_number):
-        if self.slice_number >= len(self.dicoms_image_fromarray):
-            dicom_pixel_array = self.dicoms_data[slice_number].pixel_array
-            image = dicom_pixel_array
+    def read_dicom_file(self, slice_number: int):
+        if not self.dicoms_image_fromarray[slice_number]:
+            image = self.dicoms_data[slice_number].pixel_array
             window_center, window_width, intercept, slope = get_windowing(self.dicoms_data[slice_number])
             output = window_image(image, window_center, window_width, intercept, slope, rescale=False)
-            self.dicoms_image_fromarray.append(Image.fromarray(output))
-            self.image = self.dicoms_image_fromarray[self.slice_number]
+            self.dicoms_image_fromarray[slice_number] = Image.fromarray(output)
+            self.image = self.dicoms_image_fromarray[slice_number]
         else:
-            self.image = self.dicoms_image_fromarray[self.slice_number]
-
-
-    def __next_dicom_image(self, _event):
-        if self.slice_number >= len(self.dicoms_data):
-            return
-        self.slice_number += 1
-        self.read_dicom_file(self.slice_number)
-        self.show_image()
-
-    def __previous_dicom_image(self, _event):
-        if self.slice_number <= 0:
-            return
-        self.slice_number -= 1
-        self.read_dicom_file(self.slice_number)
-        self.show_image()
+            self.image = self.dicoms_image_fromarray[slice_number]
 
     def show_image(self, _event=None):
         """ Show image on the Canvas """
