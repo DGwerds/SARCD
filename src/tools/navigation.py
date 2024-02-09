@@ -56,6 +56,8 @@ class Navigation(Tool):
                   "min_value": 1, "increment": 1}]
         return param
 
+    def get_steps_variable(self):
+        return self.__steps
     # def update_parameters(self, **kwargs):
     #     for clave, valor in kwargs.items():
     #         setattr(self, clave, valor)

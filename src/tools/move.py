@@ -53,6 +53,9 @@ class Move(Tool):
                   "min_value": 1, "increment": 1}]
         return param
 
+    def get_move_factor_variable(self):
+        return self.__move_factor
+
     # def update_parameters(self, **kwargs):
     #     for clave, valor in kwargs.items():
     #         setattr(self, clave, valor)

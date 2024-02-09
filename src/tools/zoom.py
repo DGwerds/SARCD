@@ -60,6 +60,9 @@ class Zoom(Tool):
                   "min_value": 1.1, "increment": 0.1}]
         return param
 
+    def get_zoom_factor(self):
+        return self.__zoom_factor.get()
+
     # def update_parameters(self, **kwargs):
     #     for clave, valor in kwargs.items():
     #         setattr(self, clave, valor)

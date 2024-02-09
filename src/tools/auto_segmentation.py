@@ -30,6 +30,7 @@ class AutoSegmentation(Tool):
 
         self.image_viewer.show_image()  # redraw the image
 
+
     def wheel(self, event):
         """ Zoom with mouse wheel """
         self.zoom.wheel(event)

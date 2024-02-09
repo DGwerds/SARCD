@@ -8,7 +8,7 @@ from src.panels.OptionMenu import OptionMenu
 class ManagementPanel(Frame):
     def __init__(self, root_window):
         super().__init__(root_window, style='ManagementPanel.TFrame')
-        self.bg = "lightgreen"
+        self.bg = "gray"
         Style().configure(style='ManagementPanel.TFrame', background=self.bg, width=300, height=100)
 
         self.tool_name_label = Label(self, text="Nombre de la herramienta", background=self.bg)

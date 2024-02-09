@@ -27,8 +27,10 @@ class Tool(ABC):
     def click_release(self, event):
         pass
 
-    def get_description(self):
-        pass
-
-    def get_parameters(self):
-        pass
+    # @abstractmethod
+    # def get_description(self):
+    #     pass
+    #
+    # @abstractmethod
+    # def get_parameters(self):
+    #     pass

@@ -7,7 +7,7 @@ from src.tools import ToolBox
 class ToolPanel(Frame):
     def __init__(self, master):
         super().__init__(master=master, style="ToolPanel.TFrame")
-        Style().configure(style='ToolPanel.TFrame', background='lightblue')
+        Style().configure(style='ToolPanel.TFrame', background='lightgray')
         self.__tool_box: ToolBox = ToolBox(self.master.image_viewer, self.master.management_panel)
         self.__opcion_escogida: StringVar = StringVar()
         self.__create_widgets()
@@ -15,11 +15,13 @@ class ToolPanel(Frame):
     def __create_widgets(self):
         boton_basicas = Menubutton(self, text="Herramientas basicas")
         menu = Menu(boton_basicas, tearoff=0)
-        menu.add_radiobutton(label="Navigate", value="navi", variable=self.__opcion_escogida,
+        menu.add_radiobutton(label="MultiHerramienta", value="default", variable=self.__opcion_escogida,
+                             command=self.__actualizar_panel)
+        menu.add_radiobutton(label="Navegar", value="navi", variable=self.__opcion_escogida,
                              command=self.__actualizar_panel)
         menu.add_radiobutton(label="Zoom", value="zoom", variable=self.__opcion_escogida,
                              command=self.__actualizar_panel)
-        menu.add_radiobutton(label="Move", value="move", variable=self.__opcion_escogida,
+        menu.add_radiobutton(label="Mover", value="move", variable=self.__opcion_escogida,
                              command=self.__actualizar_panel)
 
         boton_basicas["menu"] = menu
@@ -27,12 +29,13 @@ class ToolPanel(Frame):
 
         boton_dibujo = Menubutton(self, text="Herramientas de dibujo")
         menu = Menu(boton_dibujo, tearoff=0)
+        menu.add_radiobutton(label="Figuras", value="figuras", variable=self.__opcion_escogida,
+                             command=self.__actualizar_panel)
+        menu.add_radiobutton(label="Texto", value="texto", variable=self.__opcion_escogida,
+                             command=self.__actualizar_panel)
         menu.add_radiobutton(label="Pincel", value="rec", variable=self.__opcion_escogida,
                              command=self.__actualizar_panel)
-        menu.add_radiobutton(label="figuras", value="cir", variable=self.__opcion_escogida,
-                             command=self.__actualizar_panel)
-        menu.add_radiobutton(label="Pintar", value="lin", variable=self.__opcion_escogida,
-                             command=self.__actualizar_panel)
+
         boton_dibujo["menu"] = menu
         boton_dibujo.pack(side=LEFT, padx=2, pady=3, fill="both", expand=True)
 

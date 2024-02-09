@@ -1,6 +1,6 @@
-import random
 import sys
-from src.tools import AutoSegmentation, ManualSegmentation, Zoom, Tool, Move, Navigation
+
+from src.tools import AutoSegmentation, ManualSegmentation, Zoom, Tool, Move, Navigation, Figuras, Default
 
 
 class ToolBox(Tool):
@@ -17,14 +17,18 @@ class ToolBox(Tool):
         self.autoseg = AutoSegmentation(self.image_viewer, self.zoom)
         self.move = Move(self.image_viewer)
         self.navi = Navigation(self.image_viewer)
+        self.default = Default(self.image_viewer, self.zoom, self.move, self.navi)
+        self.figuras = Figuras(self.image_viewer, self.zoom)
 
-        self.tools = {"zoom": self.zoom,
+        self.tools = {"default": self.default,
+                      "zoom": self.zoom,
                       "mseg": self.mseg,
                       "autoseg": self.autoseg,
                       "move": self.move,
-                      "navi": self.navi}
+                      "navi": self.navi,
+                      "figuras": self.figuras}
 
-        self.change_tool("zoom")
+        self.change_tool("default")
 
         self.init_controls()
 

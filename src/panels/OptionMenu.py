@@ -4,10 +4,8 @@ from tkinter import *
 
 
 class OptionMenu(Frame):
-    def __init__(self, master, name: str, value: StringVar, values: tuple, bg: str = None):
+    def __init__(self, master, name: str, value: StringVar, values: tuple | dict, bg: str = None):
         super().__init__(master=master, bg=bg)
-        l = tk.Label(self, text=str(name), bg=bg)
-        l.grid(row=0, column=0, sticky="nsew")
-
+        tk.Label(self, text=str(name), bg=bg).grid(row=0, column=0, sticky="nsew")
         option_menu = ttk.OptionMenu(self, value, values[0], *values)
         option_menu.grid(row=1, column=0, padx=5, sticky="nsew")

@@ -1,11 +1,11 @@
 from tkinter import *
-from tkinter.ttk import *
+import customtkinter as ctk
 from tkinter import filedialog
 
 from src.panels import ManagementPanel, ImageViewer, ToolPanel, MenuBar
 
 
-class DICOMViewerApp(Tk):
+class DICOMViewerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("MOCID")
@@ -28,14 +28,11 @@ class DICOMViewerApp(Tk):
         self.menu_bar: Menu = MenuBar(self)
 
         # el panel de gestion de herramientas
-        self.management_panel: Frame = ManagementPanel(self)
+        self.management_panel = ManagementPanel(self)
         self.management_panel.grid(column=4, row=1, rowspan=4, pady=3, padx=3, sticky="nsew")
 
         # Donde se muestran las imagenes
-        # open a folder with dicom files (or a single file) tkinter
         path = "Ejemplos/series"
-        # path = filedialog.askdirectory()
-        print(path)
         self.image_viewer: Frame = ImageViewer(self, path=path)
         self.image_viewer.grid(column=0, row=1, columnspan=4, rowspan=4, pady=3, padx=3, sticky="nsew")
 

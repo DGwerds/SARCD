@@ -4,4 +4,6 @@ from .zoom import Zoom
 from .tool import Tool
 from .move import Move
 from .navigation import Navigation
+from .figuras import Figuras
+from .default import Default
 from .toolBox import ToolBox
