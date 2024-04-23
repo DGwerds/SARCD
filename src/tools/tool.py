@@ -1,4 +1,4 @@
-# Make a abstract class for tools
+# Make an abstract class for tools
 from abc import ABC, abstractmethod
 
 

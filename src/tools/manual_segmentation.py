@@ -67,12 +67,11 @@ class ManualSegmentation(Tool):
                 self.set_dash(x3, y3, x, y)
                 self.is_complete = False
 
-
     def draw_polygon(self):
         tag_poly = "poly" + str(len(self.tag_polygons))
         self.tag_polygons.append(tag_poly)
         cords_lines: list[tuple] = []
-        # get all coords of the tag_lines
+        # get all cords of the tag_lines
         for tag_line in self.tag_lines:
             cords_lines.append(tuple(self.canvas.coords(tag_line)))
             self.canvas.delete(tag_line)
@@ -87,11 +86,11 @@ class ManualSegmentation(Tool):
     def set_dash(self, x0, y0, x1, y1):
         if len(self.tag_lines) < 2:
             return
-        coordes_current_line = LineString([(x0, y0), (x1, y1)])
+        cords_current_line = LineString([(x0, y0), (x1, y1)])
         for line in self.tag_lines[:-2]:
             aux = self.canvas.coords(line)
             line = LineString((aux[:2], aux[2:]))
-            if line.intersects(coordes_current_line):
+            if line.intersects(cords_current_line):
                 self.is_invalid = True
                 self.canvas.itemconfigure(self.current_line, dash=self.dash)  # set dashed line
                 return
@@ -108,7 +107,8 @@ class ManualSegmentation(Tool):
     def click_release(self, event):
         pass
 
-    def get_description(self):
+    @staticmethod
+    def get_description(_self):
         return "Manual segmentation tool (in progress)"
 
     def get_parameters(self):

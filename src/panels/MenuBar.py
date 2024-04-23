@@ -13,14 +13,16 @@ class MenuBar(Menu):
         menu_archivo.add_command(label="Abrir", accelerator="Ctrl+N")
 
         def guardar():
-            print("Jajajaj, archivo ''guardado''")
+            print("archivo ''guardado''")
 
         menu_archivo.add_command(label="Guardar", accelerator="Ctrl+G", command=guardar)
         menu_archivo.add_separator()
 
         menu_archivo.add_command(label="Cerrar", accelerator="Alt+F4", command=self.master.destroy)
+
         self.add_cascade(label="Archivo", menu=menu_archivo)
 
+        # Menu Editar
         menu_editar = Menu(self, tearoff=0)
         menu_editar.add_command(label="Cortar", state=DISABLED)
         menu_editar.add_command(label="Copiar")
@@ -28,11 +30,11 @@ class MenuBar(Menu):
         self.add_cascade(label="Editar", menu=menu_editar)
 
         menu_ayuda = Menu(self, tearoff=0)
-        menu_ayuda.add_command(label="Ayudameeee", state=DISABLED)
+        menu_ayuda.add_command(label="Ayuda", state=DISABLED)
         menu_ayuda.add_separator()
 
-        def funcion_de_prueba():
+        def test():
             menu_ayuda.entryconfig(index=0, state=NORMAL)
 
-        menu_ayuda.add_command(label="Activar boton ayudameeee", command=funcion_de_prueba)
+        menu_ayuda.add_command(label="Activar botón ayuda", command=test)
         self.add_cascade(label="Ayuda", menu=menu_ayuda)

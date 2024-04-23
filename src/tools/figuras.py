@@ -62,7 +62,8 @@ class Figuras(Tool):
     def click_release(self, event):
         pass
 
-    def get_description(self):
+    @staticmethod
+    def get_description(_self):
         return "Manual segmentation tool (in progress)"
 
     def get_parameters(self):

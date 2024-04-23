@@ -30,7 +30,6 @@ class AutoSegmentation(Tool):
 
         self.image_viewer.show_image()  # redraw the image
 
-
     def wheel(self, event):
         """ Zoom with mouse wheel """
         self.zoom.wheel(event)
@@ -42,5 +41,6 @@ class AutoSegmentation(Tool):
     def click_release(self, event):
         pass
 
-    def get_description(self):
+    @staticmethod
+    def get_description():
         return "Manual segmentation tool (in progress)"

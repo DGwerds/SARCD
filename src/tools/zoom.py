@@ -30,15 +30,15 @@ class Zoom(Tool):
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
         if event.num == 5 or event.delta == -120:  # scroll down
             i = min(self.__image_viewer.width, self.__image_viewer.height)
-            if int(i * self.__image_viewer.imscale) < 300:
+            if int(i * self.__image_viewer.image_scale) < 300:
                 return  # image is less than 30 pixels
-            self.__image_viewer.imscale /= zoom_factor
+            self.__image_viewer.image_scale /= zoom_factor
             scale /= zoom_factor
         if event.num == 4 or event.delta == 120:  # scroll up
             i = min(self.__canvas.winfo_width(), self.__canvas.winfo_height()) / 8
-            if i < self.__image_viewer.imscale:
+            if i < self.__image_viewer.image_scale:
                 return  # 1 pixel is bigger than the visible area
-            self.__image_viewer.imscale *= zoom_factor
+            self.__image_viewer.image_scale *= zoom_factor
             scale *= zoom_factor
 
         self.__canvas.scale('all', x, y, scale, scale)  # rescale all canvas objects
@@ -52,7 +52,8 @@ class Zoom(Tool):
     def click_release(self, event):
         pass
 
-    def get_description(self):
+    @staticmethod
+    def get_description(_self):
         return "Zoom tool description (work in progress)"
 
     def get_parameters(self):

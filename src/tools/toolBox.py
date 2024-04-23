@@ -20,13 +20,13 @@ class ToolBox(Tool):
         self.default = Default(self.image_viewer, self.zoom, self.move, self.navi)
         self.figuras = Figuras(self.image_viewer, self.zoom)
 
-        self.tools = {"default": self.default,
-                      "zoom": self.zoom,
-                      "mseg": self.mseg,
-                      "autoseg": self.autoseg,
-                      "move": self.move,
-                      "navi": self.navi,
-                      "figuras": self.figuras}
+        self.tools = {"MultiHerramienta": self.default,
+                      "Zoom": self.zoom,
+                      "Manual Segmentation": self.mseg,
+                      "Automatic Segmentation": self.autoseg,
+                      "Mover": self.move,
+                      "Navegar": self.navi,
+                      "Figuras": self.figuras}
 
         self.change_tool("default")
 
@@ -55,8 +55,6 @@ class ToolBox(Tool):
     def set_image_viewer(self, image_viewer):
         self.image_viewer = image_viewer
         self.canvas = self.image_viewer.canvas
-        self.tools = {"zoom": self.Zoom(self.image_viewer),
-                      "mseg": self.ManualSegmentation()}
         self.init_controls()
 
     def change_tool(self, tool_name):
@@ -64,7 +62,7 @@ class ToolBox(Tool):
             self.current_tool = self.tools[tool_name]
             self.management_panel.get_tool_data(self.current_tool)
         else:
-            self.current_tool = self.tools["zoom"]
+            self.current_tool = self.tools["Zoom"]
         self.init_controls()
 
     def get_tool_parameters(self):

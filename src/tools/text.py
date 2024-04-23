@@ -1,4 +1,4 @@
-from tkinter import Canvas, DoubleVar, StringVar
+from tkinter import Canvas
 from .tool import Tool
 
 
@@ -7,8 +7,6 @@ class Text(Tool):
         self.__image_viewer = image_viewer
         self.__canvas: Canvas = self.__image_viewer.canvas
         self.__text = None
-
-
 
     def left_click(self, event):
         pass
@@ -28,8 +26,9 @@ class Text(Tool):
     def click_release(self, event):
         pass
 
-    def get_description(self):
-        return ""
+    @staticmethod
+    def get_description(_self):
+        return "text tool description (work in progress)"
 
     def get_parameters(self):
         return

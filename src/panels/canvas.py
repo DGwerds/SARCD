@@ -1,9 +1,9 @@
-import configparser
 import os
 from tkinter import *
 from tkinter.ttk import *
 
 import pydicom as dcm
+from pydicom import multival
 from PIL import Image, ImageTk
 
 
@@ -35,20 +35,21 @@ def get_windowing(data):
     except AttributeError:
         dicom_fields.extend([0, 1])
         return dicom_fields
-    return [int(x[0]) if isinstance(x, dcm.multival.MultiValue) else int(x) for x in dicom_fields]
+    return [int(x[0]) if isinstance(x, multival.MultiValue) else int(x) for x in dicom_fields]
 
 
 class ImageViewer(Frame):
     def __init__(self, root_window, path):
         super().__init__(master=root_window, style='ImageViewer.TFrame')
-        self.dicoms_data: list[FileDataset] = []
-        self.dicoms_image_fromarray: List[Image] = []
+        self.dicoms_data: list = []
+        self.dicoms_image_from_array: list = []
         self.slice_number: int = 0
 
         Style().configure(style='ImageViewer.TFrame', background='black')
 
         vbar = AutoScrollbar(self, orient='vertical')
         hbar = AutoScrollbar(self, orient='horizontal')
+
         vbar.grid(row=0, column=1, sticky='ns')
         hbar.grid(row=1, column=0, sticky='we')
 
@@ -56,6 +57,9 @@ class ImageViewer(Frame):
         self.canvas = Canvas(self, highlightthickness=0,
                              xscrollcommand=hbar.set, yscrollcommand=vbar.set, background='black')
         self.canvas.grid(row=0, column=0, sticky='nsew')
+        self.canvas.update()  # wait till canvas is created
+        hbar.configure(command=self.__scroll_x)  # bind scrollbars to the canvas
+        vbar.configure(command=self.__scroll_y)
 
         self.rowconfigure(index=0, weight=1)
         self.columnconfigure(index=0, weight=1)
@@ -74,7 +78,7 @@ class ImageViewer(Frame):
             self.image = Image.open(path)
 
         self.width, self.height = self.image.size
-        self.imscale = 1.0  # scale for the canvaas image
+        self.image_scale = 1.0  # scale for the canvas image
         self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0)
         self.show_image()
 
@@ -84,19 +88,29 @@ class ImageViewer(Frame):
                                 for file in os.listdir(folder_path) if file.lower().endswith(".dcm")]
 
         img_paths.sort()
-        self.dicoms_data: list[FileDataset] = [dcm.dcmread(img) for img in img_paths]
-        self.dicoms_image_fromarray = [None] * len(self.dicoms_data)
+        self.dicoms_data: list = [dcm.dcmread(img) for img in img_paths]
+        self.dicoms_image_from_array = [None] * len(self.dicoms_data)
         self.read_dicom_file(self.slice_number)
 
     def read_dicom_file(self, slice_number: int):
-        if not self.dicoms_image_fromarray[slice_number]:
+        if not self.dicoms_image_from_array[slice_number]:
             image = self.dicoms_data[slice_number].pixel_array
             window_center, window_width, intercept, slope = get_windowing(self.dicoms_data[slice_number])
             output = window_image(image, window_center, window_width, intercept, slope, rescale=False)
-            self.dicoms_image_fromarray[slice_number] = Image.fromarray(output)
-            self.image = self.dicoms_image_fromarray[slice_number]
+            self.dicoms_image_from_array[slice_number] = Image.fromarray(output)
+            self.image = self.dicoms_image_from_array[slice_number]
         else:
-            self.image = self.dicoms_image_fromarray[slice_number]
+            self.image = self.dicoms_image_from_array[slice_number]
+
+    def __scroll_x(self, *args, **__kwargs):
+        """ Scroll canvas horizontally and redraw the image """
+        self.canvas.xview(*args)  # scroll horizontally
+        self.show_image()  # redraw the image
+
+    def __scroll_y(self, *args, **__kwargs):
+        """ Scroll canvas vertically and redraw the image """
+        self.canvas.yview(*args)  # scroll vertically
+        self.show_image()  # redraw the image
 
     def show_image(self, _event=None):
         """ Show image on the Canvas """
@@ -122,11 +136,11 @@ class ImageViewer(Frame):
         x2 = min(bbox2[2], bbox1[2]) - bbox1[0]
         y2 = min(bbox2[3], bbox1[3]) - bbox1[1]
         if int(x2 - x1) > 0 and int(y2 - y1) > 0:  # show image if it in the visible area
-            x = min(int(x2 / self.imscale), self.width)  # sometimes it is larger on 1 pixel...
-            y = min(int(y2 / self.imscale), self.height)  # ...and sometimes not
-            image = self.image.crop((int(x1 / self.imscale), int(y1 / self.imscale), x, y))
-            imagetk = ImageTk.PhotoImage(image.resize(size=(int(x2 - x1), int(y2 - y1))))
-            imageid = self.canvas.create_image(max(bbox2[0], bbox1[0]), max(bbox2[1], bbox1[1]),
-                                               anchor='nw', image=imagetk)
-            self.canvas.lower(imageid)  # set image into background
-            self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+            x = min(int(x2 / self.image_scale), self.width)  # sometimes it is larger on 1 pixel...
+            y = min(int(y2 / self.image_scale), self.height)  # ...and sometimes not
+            image = self.image.crop((int(x1 / self.image_scale), int(y1 / self.image_scale), x, y))
+            tk_image = ImageTk.PhotoImage(image.resize(size=(int(x2 - x1), int(y2 - y1))))
+            image_id = self.canvas.create_image(max(bbox2[0], bbox1[0]), max(bbox2[1], bbox1[1]),
+                                                anchor='nw', image=tk_image)
+            self.canvas.lower(image_id)  # set image into background
+            self.canvas.tk_image = tk_image  # keep an extra reference to prevent garbage-collection

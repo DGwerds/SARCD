@@ -1,37 +1,33 @@
-from tkinter import *
-from tkinter.ttk import *
-from src.panels.Spinbox import Spinbox
-from src.panels.ColorPicker import ColorPicker
-from src.panels.OptionMenu import OptionMenu
+from customtkinter import *
+
+from src.customWidgets import CSpinbox, ColorPicker, OptionMenu
 
 
-class ManagementPanel(Frame):
+class ManagementPanel(CTkFrame):
     def __init__(self, root_window):
-        super().__init__(root_window, style='ManagementPanel.TFrame')
-        self.bg = "gray"
-        Style().configure(style='ManagementPanel.TFrame', background=self.bg, width=300, height=100)
+        super().__init__(root_window)
 
-        self.tool_name_label = Label(self, text="Nombre de la herramienta", background=self.bg)
-        self.tool_name_label.grid(row=1, column=0, padx=2, pady=4, sticky="nsew")
+        self.tool_name_label = CTkLabel(self, text="Nombre de la herramienta")
+        self.tool_name_label.grid(row=0, column=0, padx=2, pady=4, sticky="nsew")
 
-        self.parameters_frame = Frame(self, style='ManagementPanel.TFrame')
-        self.parameters_frame.grid(row=2, column=0, padx=2, pady=4, sticky="nsew")
+        self.parameters_frame = CTkFrame(self)
+        self.parameters_frame.grid(row=1, column=0, padx=2, pady=4, sticky="nsew")
 
     def get_tool_data(self, tool):
         for widget in self.parameters_frame.winfo_children():
             widget.grid_forget()
-        self.tool_name_label.config(text=type(tool).__name__)
+        self.tool_name_label.configure(text=type(tool).__name__)
         val = None
         params: list = tool.get_parameters()
         for i, param in enumerate(params):
             aux = param.pop("type")
             match aux:
                 case "spinbox":
-                    val = Spinbox(self.parameters_frame, **param, bg=self.bg)
+                    val = CSpinbox(self.parameters_frame, **param)
                 case "color":
-                    val = ColorPicker(self.parameters_frame, **param, bg=self.bg)
+                    val = ColorPicker(self.parameters_frame, **param)
                 case "option":
-                    val = OptionMenu(self.parameters_frame, **param, bg=self.bg)
+                    val = OptionMenu(self.parameters_frame, **param)
 
             val.grid(row=i, column=0, padx=2, pady=4, sticky="nsew")
 
