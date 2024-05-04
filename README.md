@@ -19,3 +19,6 @@ Descargalas todas usando el siguiente comando en la terminal:
 
 pip install -r requirements.txt 
 
+
+# Video
+<br> [<img src="https://img.youtube.com/vi/N8NJRJMd5vI/0.jpg" width=80% height=80%>](https://youtu.be/N8NJRJMd5vI)
